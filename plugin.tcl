@@ -1,3 +1,4 @@
+# v1.1.0 change cool down timer min value from 10 to 0
 ### By Damian Brakel ###
 set plugin_name "D_Scheduler"
 
@@ -9,7 +10,7 @@ namespace eval ::plugins::${plugin_name} {
     variable author "Damian"
     variable contact "via Diaspora"
     variable description ""
-    variable version 1.0.0
+    variable version 1.0.1
     variable min_de1app_version {1.36.5}
 
     proc build_ui {} {
@@ -237,10 +238,10 @@ namespace eval ::plugins::${plugin_name} {
             -bwidth 150 -bheight 100 \
             -label "-" -label_font [dui font get "Font Awesome 5 Pro-Regular-400" 22] -label_fill $click_colour -label_pos {0.5 0.5} \
             -command {
-                if {$::settings(screen_saver_delay) > 10} {
+                if {$::settings(screen_saver_delay) > 0} {
                     set ::settings(screen_saver_delay) [expr $::settings(screen_saver_delay) - 1]
                 } else {
-                    set ::plugins::D_Scheduler::minutes 10
+                    set ::plugins::D_Scheduler::minutes 0
                 }
                 save_settings;
             }
@@ -314,18 +315,17 @@ namespace eval ::plugins::${plugin_name} {
         }
         set m [expr ($sh * 60) + $::plugins::D_Scheduler::minutes]
         set s [expr $m * 60]
-        set z [clock format [clock seconds] -format {%z}]
         set sep " "
         if {[info exists ::D_scheduler_minutes($day)] == 1} {
             if {[lsearch -exact $::D_scheduler_minutes($day) $m] >= 0} {
                 set ::plugins::D_Scheduler::message "That time already exists"
                 after 1200 {set ::plugins::D_Scheduler::message ""}
             } else {
-                append ::D_scheduler_times($day) [clock format $s -format {%I:%M%P} -gmt $z] \r
+                append ::D_scheduler_times($day) [clock format $s -format {%I:%M%P} -gmt 1] \r
                 append ::D_scheduler_minutes($day) $sep$m$sep
             }
         } else {
-            append ::D_scheduler_times($day) [clock format $s -format {%I:%M%P} -gmt $z] \r
+            append ::D_scheduler_times($day) [clock format $s -format {%I:%M%P} -gmt 1] \r
             append ::D_scheduler_minutes($day) $sep$m$sep
         }
     }
@@ -337,8 +337,7 @@ namespace eval ::plugins::${plugin_name} {
             if {[info exists ::D_scheduler_minutes($day)] == 1} {
                 foreach m $::D_scheduler_minutes($day) {
                     set s [expr $m * 60]
-                    set z [clock format [clock seconds] -format {%z}]
-                    append ::D_scheduler_times($day) [clock format $s -format {%I:%M%P} -gmt $z] \r
+                    append ::D_scheduler_times($day) [clock format $s -format {%I:%M%P} -gmt 1] \r
                 }
             }
         }
